@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: sovscan-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sovscan
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+    container_name: sovscan-backend
+    environment:
+      DB_USER: user
+      DB_HOST: db
+      DB_NAME: sovscan
+      DB_PASSWORD: password
+      DB_PORT: 5432
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: /api
+    container_name: sovscan-frontend
+    environment:
+      BACKEND_URL: http://backend:3001
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend

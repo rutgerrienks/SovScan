@@ -1,0 +1,410 @@
+:root {
+  --d-green: #86BC25;
+  --d-black: #000000;
+  --d-white: #ffffff;
+  --d-gray-1: #222222;
+  --d-gray-2: #404040;
+  --d-gray-3: #999999;
+  --d-bg: #ffffff;
+  --font-main: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  background-color: var(--d-bg);
+  color: var(--d-black);
+  line-height: 1.6;
+}
+
+/* Deloitte Logo Style */
+.deloitte-logo {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--d-black);
+}
+
+.deloitte-logo span {
+  color: var(--d-green);
+  font-size: 32px;
+}
+
+/* Layout Containers */
+.App {
+  min-height: 100vh;
+}
+
+.nav-header {
+  padding: 20px 40px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  margin-top: 0;
+  color: var(--d-black);
+}
+
+h1 { font-size: 48px; letter-spacing: -2px; line-height: 1.1; margin-bottom: 40px; }
+h2 { font-size: 36px; letter-spacing: -1px; margin-bottom: 30px; }
+h3 { font-size: 24px; margin-bottom: 20px; }
+
+/* Buttons - Deloitte.com Style */
+.btn {
+  display: inline-block;
+  padding: 14px 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 0;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--d-black);
+  color: var(--d-white);
+}
+
+.btn-primary:hover {
+  background-color: var(--d-green);
+  border-color: var(--d-green);
+}
+
+.btn-success {
+  background-color: var(--d-green);
+  color: var(--d-white);
+}
+
+.btn-success:hover {
+  background-color: var(--d-black);
+}
+
+.btn-outline-dark {
+  border-color: var(--d-black);
+  background: transparent;
+  color: var(--d-black);
+}
+
+.btn-outline-dark:hover {
+  background: var(--d-black);
+  color: var(--d-white);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--d-black);
+  text-decoration: underline;
+  text-transform: none;
+  padding: 0;
+}
+
+/* Cards & UI Elements */
+.card {
+  background: white;
+  border: none;
+  border-radius: 0;
+  padding: 40px;
+  margin-bottom: 40px;
+}
+
+.bg-light {
+  background-color: #f6f6f6 !important;
+}
+
+/* Wizard Specifics */
+.progress-container {
+  height: 4px;
+  background-color: #e5e5e5;
+  width: 100%;
+  margin: 40px 0;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--d-green);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.question-step h2 {
+  font-size: 40px;
+  margin-bottom: 50px;
+}
+
+/* Answer Buttons */
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.answer-btn {
+  padding: 30px;
+  font-size: 20px;
+  font-weight: 700;
+  border: 2px solid #e5e5e5;
+  background: white;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.answer-btn:hover {
+  border-color: var(--d-black);
+}
+
+.answer-btn.active {
+  background: var(--d-black);
+  color: white;
+  border-color: var(--d-black);
+}
+
+.answer-btn.active-green {
+  background: var(--d-green);
+  color: white;
+  border-color: var(--d-green);
+}
+
+/* Table Styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 20px 10px;
+  border-bottom: 2px solid var(--d-black);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.table td {
+  padding: 20px 10px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* Results Section */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background-color: #e5e5e5;
+  border: 1px solid #e5e5e5;
+}
+
+.result-item {
+  background: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.result-label {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  color: var(--d-gray-2);
+}
+
+.result-value {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.ko-badge {
+  background: #ff0000;
+  color: white;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Login - Full Background Overlay */
+.login-screen {
+  background: var(--d-black);
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  max-width: 1000px;
+  width: 100%;
+  padding: 20px;
+}
+
+/* Alleen onder elkaar op kleine schermen */
+@media (max-width: 850px) {
+  .login-container {
+    flex-wrap: wrap;
+  }
+}
+
+.login-box {
+  flex: 1 1 350px;
+  background: white;
+  padding: 60px;
+  /* Deloitte style is strak, geen ronde hoeken */
+  border-radius: 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.promo-box {
+  flex: 1 1 350px;
+  background: var(--d-green);
+  padding: 60px;
+  color: black;
+  /* Deloitte style is strak, geen ronde hoeken */
+  border-radius: 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--d-green);
+}
+
+/* Badges */
+.badge {
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 5px;
+}
+.bg-deloitte-black { background-color: var(--d-black); color: white; }
+.bg-deloitte-green { background-color: var(--d-green); color: white; }
+
+/* Status Lights */
+.status-container {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    gap: 20px;
+    z-index: 1000;
+    background: rgba(0,0,0,0.4);
+    padding: 10px 15px;
+    border-radius: 4px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-light {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.status-light.online {
+    background-color: var(--d-green);
+    box-shadow: 0 0 10px var(--d-green);
+}
+
+.status-light.offline {
+    background-color: #ff0000;
+    box-shadow: 0 0 10px #ff0000;
+}
+
+/* Print Overrides */
+@media print {
+    .no-print, 
+    .nav-header,
+    button,
+    input,
+    .btn,
+    .alert {
+        display: none !important;
+    }
+
+    .main-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #eee !important;
+        padding: 20px !important;
+    }
+
+    body {
+        background-color: white !important;
+    }
+
+    .result-grid {
+        background-color: #eee !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .result-item {
+        -webkit-print-color-adjust: exact;
+    }
+
+    .ko-badge {
+        -webkit-print-color-adjust: exact;
+    }
+}
