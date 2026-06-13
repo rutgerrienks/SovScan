@@ -4,7 +4,12 @@ import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const Dashboard = ({ user, onSelect, onLogout }) => {
-  const [counts, setCounts] = useState({ assessments: null, audits: null });
+  const [counts, setCounts] = useState({
+    assessments: null,
+    audits: null,
+    scenarioQuestions: null,
+    auditQuestions: null,
+  });
   const [showInvites, setShowInvites] = useState(false);
   const [invites, setInvites] = useState([]);
   const [newProjectName, setNewProjectName] = useState('');
@@ -16,13 +21,25 @@ const Dashboard = ({ user, onSelect, onLogout }) => {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const [aRes, auRes] = await Promise.all([
+        const [aRes, auRes, qRes, aqRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/assessments?userId=${user.id}`),
-          axios.get(`${API_BASE_URL}/audits?userId=${user.id}`)
+          axios.get(`${API_BASE_URL}/audits?userId=${user.id}`),
+          axios.get(`${API_BASE_URL}/questions`),
+          axios.get(`${API_BASE_URL}/audit-questions`),
         ]);
-        setCounts({ assessments: aRes.data.length, audits: auRes.data.length });
+        setCounts({
+          assessments: aRes.data.length,
+          audits: auRes.data.length,
+          scenarioQuestions: qRes.data.length,
+          auditQuestions: aqRes.data.length,
+        });
       } catch (err) {
-        setCounts({ assessments: 0, audits: 0 });
+        setCounts({
+          assessments: 0,
+          audits: 0,
+          scenarioQuestions: 0,
+          auditQuestions: 0,
+        });
       }
     };
     fetchCounts();
@@ -123,7 +140,7 @@ const Dashboard = ({ user, onSelect, onLogout }) => {
             <div className="dashboard-card-number">01</div>
             <h2 className="dashboard-card-title">Scenario Assessment</h2>
             <p className="dashboard-card-desc">
-              Bepaal het meest geschikte hosting-scenario voor een nieuw project of use-case. Beantwoord 27 vragen en ontvang direct scores voor On-Premise, OP Partner, EU Cloud en Hyperscaler — inclusief live preview en knock-out analyse.
+              Bepaal het meest geschikte hosting-scenario voor een nieuw project of use-case. Beantwoord {counts.scenarioQuestions ?? '...'} vragen en ontvang direct scores voor On-Premise, OP Partner, EU Cloud en Hyperscaler — inclusief live preview en knock-out analyse.
             </p>
             <div className="dashboard-card-meta">
               {counts.assessments !== null
@@ -295,10 +312,10 @@ const Dashboard = ({ user, onSelect, onLogout }) => {
         {/* Info strip */}
         <div style={{ marginTop: '48px', padding: '24px 32px', background: '#fff', borderLeft: '4px solid var(--d-green)', display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
           {[
-            { n: '27', label: 'Vragen per scenario-scan' },
+            { n: counts.scenarioQuestions ?? '...', label: 'Vragen per scenario-scan' },
             { n: '4', label: 'Hosting-scenario\'s vergeleken' },
             { n: '7', label: 'Soevereiniteitsdimensies' },
-            { n: '31', label: 'Auditstellingen' },
+            { n: counts.auditQuestions ?? '...', label: 'Auditstellingen' },
           ].map(({ n, label }) => (
             <div key={label}>
               <div style={{ fontSize: '40px', fontWeight: '800', lineHeight: 1, color: 'var(--d-green)' }}>{n}</div>
