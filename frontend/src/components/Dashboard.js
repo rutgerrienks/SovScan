@@ -123,7 +123,7 @@ const Dashboard = ({ user, onSelect, onLogout }) => {
             <div className="dashboard-card-number">01</div>
             <h2 className="dashboard-card-title">Scenario Assessment</h2>
             <p className="dashboard-card-desc">
-              Bepaal het meest geschikte hosting-scenario voor een nieuw project of use-case. Beantwoord 23 vragen en ontvang direct scores voor On-Premise, OP Partner, EU Cloud en Hyperscaler — inclusief live preview en knock-out analyse.
+              Bepaal het meest geschikte hosting-scenario voor een nieuw project of use-case. Beantwoord 27 vragen en ontvang direct scores voor On-Premise, OP Partner, EU Cloud en Hyperscaler — inclusief live preview en knock-out analyse.
             </p>
             <div className="dashboard-card-meta">
               {counts.assessments !== null
@@ -295,10 +295,10 @@ const Dashboard = ({ user, onSelect, onLogout }) => {
         {/* Info strip */}
         <div style={{ marginTop: '48px', padding: '24px 32px', background: '#fff', borderLeft: '4px solid var(--d-green)', display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
           {[
-            { n: '23', label: 'Vragen per scenario-scan' },
+            { n: '27', label: 'Vragen per scenario-scan' },
             { n: '4', label: 'Hosting-scenario\'s vergeleken' },
             { n: '7', label: 'Soevereiniteitsdimensies' },
-            { n: '21', label: 'Auditstellingen' },
+            { n: '31', label: 'Auditstellingen' },
           ].map(({ n, label }) => (
             <div key={label}>
               <div style={{ fontSize: '40px', fontWeight: '800', lineHeight: 1, color: 'var(--d-green)' }}>{n}</div>

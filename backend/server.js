@@ -62,6 +62,7 @@ app.use('/api', apiRoutes);
     // hem dan eenmalig door de nieuwe set uit seed_questions.js. Idempotent:
     // wordt niet opnieuw uitgevoerd zodra de nieuwe set in de DB staat.
     const seedQuestions = require('./seed_questions');
+    const auditSeedQuestions = require('./seed_audit_questions');
     const oldMarker = await db.query(
       `SELECT 1 FROM questions WHERE question_text = 'Maakt de oplossing gebruik van hooggerubriceerde data?' LIMIT 1`
     );
@@ -97,6 +98,27 @@ app.use('/api', apiRoutes);
       console.log(`Migration OK: vragenset vervangen, ${seedQuestions.length} vragen ingeladen.`);
     } else {
       console.log('Migration OK: nieuwe vragenset al aanwezig, geen wijziging.');
+    }
+
+    // Voeg ontbrekende auditvragen idempotent toe zonder bestaande antwoorden
+    // te verwijderen. Match op exacte question_text om duplicaten te voorkomen.
+    let insertedAuditCount = 0;
+    for (const q of auditSeedQuestions) {
+      const exists = await db.query(
+        `SELECT 1 FROM audit_questions WHERE question_text = $1 LIMIT 1`,
+        [q.question_text]
+      );
+      if (exists.rowCount === 0) {
+        await db.query(
+          `INSERT INTO audit_questions (dimensie, question_text, toelichting, display_order)
+           VALUES ($1, $2, $3, $4)`,
+          [q.dimensie, q.question_text, q.toelichting || null, q.display_order || 0]
+        );
+        insertedAuditCount += 1;
+      }
+    }
+    if (insertedAuditCount > 0) {
+      console.log(`Migration OK: ${insertedAuditCount} aanvullende auditvragen toegevoegd.`);
     }
   } catch (err) {
     console.error('Migration error:', err.message);

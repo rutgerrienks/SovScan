@@ -166,4 +166,16 @@ INSERT INTO audit_questions (dimensie, question_text, toelichting, display_order
 
 -- Prijs / TCO
 ('Prijs / TCO', 'In hoeverre heeft uw organisatie inzicht in en controle over de totale kosten (TCO) van dit systeem?', 'Score 1: kosten onvoorspelbaar en volledig door leverancier bepaald – Score 5: volledige kostentransparantie en -controle', 70),
-('Prijs / TCO', 'Kunt u de infra-kosten verlagen door te wisselen van leverancier of door zelf te hosten?', 'Score 1: geen alternatief, hoge exit-kosten – Score 5: meerdere alternatieven, minimale exit-kosten', 71);
+('Prijs / TCO', 'Kunt u de infra-kosten verlagen door te wisselen van leverancier of door zelf te hosten?', 'Score 1: geen alternatief, hoge exit-kosten – Score 5: meerdere alternatieven, minimale exit-kosten', 71),
+
+-- Aanvullende vragen o.b.v. externe instrumenten (DICTU / EU-kaders)
+('Data-soevereiniteit', 'Is het uiteindelijke moederbedrijf van de leverancier juridisch in de EU gevestigd en EU-gecontroleerd?', 'Score 1: buiten EU/eindzeggenschap buiten EU – Score 5: volledig EU-gevestigd en EU-gecontroleerd', 4),
+('Data-soevereiniteit', 'Zijn alle subverwerkers, datalocaties en doorgiften volledig transparant en contractueel geborgd?', 'Score 1: onduidelijke keten – Score 5: volledige ketentransparantie met contractuele borging', 5),
+('Security', 'Zijn er aantoonbare technische maatregelen die provider-toegang tot data blokkeren (bijv. HYOK/confidential computing)?', 'Score 1: geen technische isolatie – Score 5: verifieerbare technische isolatie met attestatie', 13),
+('Security', 'Is privileged beheerpersoneel aantoonbaar gescreend en beperkt conform soevereiniteitseisen?', 'Score 1: geen aantoonbare borging – Score 5: volledig geborgd via screening en least-privilege', 14),
+('Vendor Lock-in', 'Worden exit- en migratiescenario\'s periodiek getest, inclusief herstel van data en modellen?', 'Score 1: nooit getest – Score 5: periodiek aantoonbaar getest met succesvolle restores', 23),
+('Vendor Lock-in', 'Zijn open standaarden/API\'s en dataportabiliteit contractueel afgedwongen zonder disproportionele egresskosten?', 'Score 1: gesloten interfaces en hoge egressbarrieres – Score 5: open standaarden en faire exitvoorwaarden', 24),
+('Auditability & Compliance', 'Is melding en juridisch verzet bij extraterritoriale dataverzoeken expliciet contractueel geregeld?', 'Score 1: geen meldplicht/verzet – Score 5: afdwingbare meldplicht en actief juridisch verzet', 43),
+('Auditability & Compliance', 'Kan uw organisatie zelfstandig forensisch onderzoek uitvoeren met volledige en onveranderbare logging?', 'Score 1: vendor-afhankelijk en beperkte logs – Score 5: volledige zelfstandige forensische capaciteit', 44),
+('Operationele controle', 'Is er een aantoonbaar governance- en continuiteitsmodel voor sleutelrollen en kennisbehoud?', 'Score 1: ad-hoc governance – Score 5: formeel governance- en continuiteitsmodel met periodieke toetsing', 52),
+('Prijs / TCO', 'Zijn kosten voor support, egress, audits en compliance structureel voorspelbaar en contractueel gemaximeerd?', 'Score 1: onvoorspelbare aanvullende kosten – Score 5: transparante en voorspelbare integrale kostenstructuur', 72);

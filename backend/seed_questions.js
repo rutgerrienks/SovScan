@@ -394,5 +394,65 @@ Antwoord Nee → data blijft binnen het platform; alle scenario's gelijkwaardig 
     info_text: `Behoefte aan voorspelbare maandlasten (max ~10% variatie).
 Antwoord Ja → OP en OPP bieden vaste licentie/afschrijvingskosten en scoren hoog; EUC en HYP scoren laag door pay-per-use.
 Antwoord Nee → variabele kosten zijn acceptabel; alle scenario's blijven open.`
+  },
+
+  // ─────────────────── EXTERNE KADERS (display_order 90-99) ───────────────
+  {
+    display_order: 90,
+    cluster: 'Externe kaders',
+    dimensie: 'Juridische borging',
+    question_text: 'Moet het moederbedrijf van de leverancier juridisch in de EU gevestigd en EU-gecontroleerd zijn?',
+    toelichting: 'Aansluiting op soevereiniteitseisen uit externe toetsingskaders',
+    answer_type: 'binary',
+    base_factor: 1, dimensie_gewicht: 1.3,
+    op_ja: 10, op_nee: 10, opp_ja: 10, opp_nee: 10, euc_ja: 10, euc_nee: 10, hyp_ja: 0, hyp_nee: 10,
+    ko_on_ja: 'HYP',
+    ko_reason: 'Niet-EU moedermaatschappijen vallen buiten deze juridische soevereiniteitseis.',
+    ko_mitigation: 'Selecteer EU-gecontroleerde leverancier of contracteer via EU-sovereign constructie met juridisch afgebakende zeggenschap.',
+    info_text: `Eis op EU-juridische inbedding en zeggenschap op moederbedrijf-niveau.
+Antwoord Ja → HYP wordt knock-out; OP/OPP/EUC blijven open.
+Antwoord Nee → geen harde eis op moederbedrijf-jurisdictie; alle scenario's blijven open.`
+  },
+  {
+    display_order: 91,
+    cluster: 'Externe kaders',
+    dimensie: 'Juridische borging',
+    question_text: 'Moet contractueel zijn vastgelegd dat dataverzoeken buiten de EU actief worden gemeld en juridisch aangevochten?',
+    toelichting: 'Meldplicht + juridisch verzet zijn kernmaatregelen tegen extraterritoriale druk',
+    answer_type: 'binary',
+    base_factor: 1, dimensie_gewicht: 1.3,
+    op_ja: 10, op_nee: 8, opp_ja: 8, opp_nee: 8, euc_ja: 8, euc_nee: 8, hyp_ja: 2, hyp_nee: 8,
+    ko_mitigation: 'Neem specifieke meld- en bezwaarclausules op inclusief auditrechten en escalatiepad.',
+    info_text: `Eis op contractuele verplichting voor notificatie en juridisch verzet bij extraterritoriale dataverzoeken.
+Antwoord Ja → OP/OPP/EUC scoren hoog; HYP duidelijk lager door juridische complexiteit in de keten.
+Antwoord Nee → dit controlemechanisme is niet verplicht; alle scenario's blijven open.`
+  },
+  {
+    display_order: 92,
+    cluster: 'Externe kaders',
+    dimensie: 'Data & AI',
+    question_text: 'Zijn verifieerbare technische maatregelen vereist die leverancierstoegang blokkeren (bijv. HYOK/confidential computing)?',
+    toelichting: 'Technische isolatie als aanvulling op juridische afspraken',
+    answer_type: 'binary',
+    base_factor: 1, dimensie_gewicht: 1.2,
+    op_ja: 10, op_nee: 8, opp_ja: 8, opp_nee: 8, euc_ja: 6, euc_nee: 10, hyp_ja: 4, hyp_nee: 10,
+    ko_mitigation: 'Gebruik aantoonbare technische isolatie met attestatie en sleutelbeheer onder eigen regie.',
+    info_text: `Eis op technische in plaats van uitsluitend contractuele datatoegangsbeheersing.
+Antwoord Ja → OP/OPP scoren hoog; EUC en HYP alleen met sterke confidential-computing implementatie.
+Antwoord Nee → juridische en organisatorische beheersing volstaat; alle scenario's blijven open.`
+  },
+  {
+    display_order: 93,
+    cluster: 'Externe kaders',
+    dimensie: 'Exit & portabiliteit',
+    question_text: 'Moet periodiek een aantoonbare exit-oefening worden uitgevoerd (data + model restore bij alternatieve leverancier)?',
+    toelichting: 'Geteste portabiliteit is sterker dan contractuele belofte',
+    answer_type: 'binary',
+    base_factor: 1, dimensie_gewicht: 1.1,
+    op_ja: 10, op_nee: 10, opp_ja: 8, opp_nee: 10, euc_ja: 8, euc_nee: 10, hyp_ja: 4, hyp_nee: 10,
+    ko_mitigation: 'Plan jaarlijks exit-drill met objectieve succescriteria (RTO, datacompleetheid, modelreproduceerbaarheid).',
+    info_text: `Eis op bewezen, periodiek geteste exit-capaciteit in plaats van alleen contracttekst.
+Antwoord Ja → OP/OPP/EUC scoren hoog; HYP lager door afhankelijkheid van proprietary diensten.
+Antwoord Nee → exit hoeft niet periodiek bewezen; alle scenario's blijven open.`
   }
 ];
