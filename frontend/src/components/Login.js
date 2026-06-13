@@ -8,6 +8,7 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState({ backend: 'checking', database: 'checking' });
+  const [toolStats, setToolStats] = useState({ scenarioQuestions: null, auditQuestions: null });
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -25,6 +26,25 @@ const Login = ({ onLogin }) => {
     checkStatus();
     const interval = setInterval(checkStatus, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchToolStats = async () => {
+      try {
+        const [qRes, aqRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/questions`),
+          axios.get(`${API_BASE_URL}/audit-questions`)
+        ]);
+        setToolStats({
+          scenarioQuestions: qRes.data.length,
+          auditQuestions: aqRes.data.length
+        });
+      } catch (err) {
+        setToolStats({ scenarioQuestions: 0, auditQuestions: 0 });
+      }
+    };
+
+    fetchToolStats();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -107,7 +127,7 @@ const Login = ({ onLogin }) => {
                   01 — Scenario Assessment
                 </p>
                 <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: 0, opacity: 0.85 }}>
-                  Beantwoord 23 vragen over uw project en ontdek welk hosting-scenario (On-Premise, EU Cloud of Hyperscaler) het beste past — inclusief live scorepreview en knock-out analyse.
+                  Beantwoord {toolStats.scenarioQuestions ?? '...'} vragen over uw project en ontdek welk hosting-scenario (On-Premise, OP Partner, EU Cloud of Hyperscaler) het beste past — inclusief live scorepreview en knock-out analyse.
                 </p>
               </div>
               {/* Tool 2 */}
@@ -116,7 +136,7 @@ const Login = ({ onLogin }) => {
                   02 — Soevereiniteitsaudit
                 </p>
                 <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: 0, opacity: 0.85 }}>
-                  Beoordeel een bestaand AI-systeem op 7 soevereiniteitsdimensies: van data-controle en vendor lock-in tot auditability en operationele onafhankelijkheid.
+                  Beoordeel een bestaand AI-systeem met {toolStats.auditQuestions ?? '...'} auditstellingen verdeeld over 7 soevereiniteitsdimensies: van data-controle en vendor lock-in tot auditability en operationele onafhankelijkheid.
                 </p>
               </div>
             </div>
