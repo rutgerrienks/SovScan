@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const AdminPanel = ({ onLogout }) => {
   const [questions, setQuestions] = useState([]);
@@ -74,9 +74,23 @@ const AdminPanel = ({ onLogout }) => {
             <label className="form-label">Toelichting</label>
             <textarea className="form-control" value={editingQuestion.toelichting || ''} onChange={e => setEditingQuestion({...editingQuestion, toelichting: e.target.value})} />
           </div>
+          <div className="col-12">
+            <label className="form-label">Achtergrondinfo (info-blokje voor gebruiker, optioneel)</label>
+            <textarea className="form-control" rows="2" placeholder="Korte uitleg over context en impact op scenario's..."
+              value={editingQuestion.info_text || ''}
+              onChange={e => setEditingQuestion({...editingQuestion, info_text: e.target.value})} />
+          </div>
           <div className="col-md-4">
             <label className="form-label">Basis Wegingsfactor</label>
             <input type="number" step="0.1" className="form-control" value={editingQuestion.base_factor || 1} onChange={e => setEditingQuestion({...editingQuestion, base_factor: e.target.value})} required />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Vraag-type</label>
+            <select className="form-control" value={editingQuestion.answer_type || 'scale'}
+              onChange={e => setEditingQuestion({...editingQuestion, answer_type: e.target.value})}>
+              <option value="scale">Schaal (slider 0–100)</option>
+              <option value="binary">Binair (Ja / Nee)</option>
+            </select>
           </div>
 
           <div className="col-12 mt-4 border-top pt-3">
@@ -111,6 +125,18 @@ const AdminPanel = ({ onLogout }) => {
             <label className="form-label">Knock-out bij "Nee"</label>
             <input type="text" className="form-control" placeholder="OP,OPP,EUC,HYP" value={editingQuestion.ko_on_nee || ''} onChange={e => setEditingQuestion({...editingQuestion, ko_on_nee: e.target.value})} />
           </div>
+          <div className="col-12 mt-3">
+            <label className="form-label">KO-reden (waarom dit antwoord een scenario uitsluit, optioneel)</label>
+            <textarea className="form-control" rows="2" placeholder="Bv. 'Hyperscalers vallen onder buitenlandse jurisdictie (CLOUD Act)...'"
+              value={editingQuestion.ko_reason || ''}
+              onChange={e => setEditingQuestion({...editingQuestion, ko_reason: e.target.value})} />
+          </div>
+          <div className="col-12 mt-3">
+            <label className="form-label">Mogelijke mitigatie van de KO (optioneel)</label>
+            <textarea className="form-control" rows="2" placeholder="Bv. 'Te ondervangen via Sovereign Cloud van een hyperscaler met EU-data residency...'"
+              value={editingQuestion.ko_mitigation || ''}
+              onChange={e => setEditingQuestion({...editingQuestion, ko_mitigation: e.target.value})} />
+          </div>
         </div>
         <div className="mt-4">
           <button type="submit" className="btn btn-success me-2">Opslaan</button>
@@ -132,7 +158,7 @@ const AdminPanel = ({ onLogout }) => {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h3>Vragenlijst Beheer</h3>
             <button className="btn btn-primary" onClick={() => {
-                setEditingQuestion({ base_factor: 1, op_ja: 0, opp_ja: 0, euc_ja: 0, hyp_ja: 0, op_nee: 0, opp_nee: 0, euc_nee: 0, hyp_nee: 0 });
+                setEditingQuestion({ base_factor: 1, op_ja: 0, opp_ja: 0, euc_ja: 0, hyp_ja: 0, op_nee: 0, opp_nee: 0, euc_nee: 0, hyp_nee: 0, answer_type: 'scale' });
                 setShowForm(true);
             }}>+ Nieuwe Vraag</button>
           </div>

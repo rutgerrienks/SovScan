@@ -1,40 +1,47 @@
+version: "3.9"
+
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: sovscan-db
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: sovscan
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-dsh_data}
     ports:
       - "5432:5432"
     volumes:
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
 
   backend:
     build: ./backend
-    container_name: sovscan-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
     environment:
-      DB_USER: user
-      DB_HOST: db
-      DB_NAME: sovscan
-      DB_PASSWORD: password
-      DB_PORT: 5432
       PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-dsh_data}
+      DB_SSL: "false"
     ports:
       - "3001:3001"
-    depends_on:
-      - db
 
   frontend:
     build:
       context: ./frontend
       args:
         REACT_APP_API_URL: /api
-    container_name: sovscan-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
     environment:
       BACKEND_URL: http://backend:3001
     ports:
       - "8080:8080"
-    depends_on:
-      - backend
+
+volumes:
+  postgres_data:

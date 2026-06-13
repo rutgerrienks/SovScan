@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -87,37 +87,43 @@ const Login = ({ onLogin }) => {
 
         {/* Box 2: Promo (Green) */}
         <div className="promo-box">
-          <div className="h-100 d-flex flex-column justify-content-center">
-            <h3 className="mb-4" style={{ fontSize: '32px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: '1.1', color: 'black' }}>
-              Klaar om te scannen?
-            </h3>
+          <div className="h-100 d-flex flex-column justify-content-between">
+            <div>
+              <p style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px', opacity: 0.7 }}>
+                Twee instrumenten, één platform
+              </p>
+              <h3 className="mb-4" style={{ fontSize: '30px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: '1.1', color: 'black' }}>
+                Digitale Soevereiniteit in kaart
+              </h3>
+              <p style={{ fontSize: '16px', fontWeight: '600', lineHeight: '1.6', marginBottom: '32px' }}>
+                Bepaal de optimale hostingstrategie voor nieuwe projecten én beoordeel de soevereiniteit van bestaande systemen.
+              </p>
+            </div>
 
-            <p className="mb-5" style={{ fontSize: '18px', fontWeight: '600', lineHeight: '1.6' }}>
-              Navigeer door de complexiteit van digitale soevereiniteit. Ontdek binnen 10 minuten welke cloud-strategie het beste past bij uw organisatie.
-            </p>
-
-            <div className="features">
-              <div className="d-flex align-items-center mb-4">
-                <span style={{ fontSize: '24px', marginRight: '15px' }}>✓</span>
-                <span style={{ fontSize: '16px', fontWeight: '700' }}>23 Kritieke criteria</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Tool 1 */}
+              <div style={{ background: 'rgba(0,0,0,0.12)', padding: '20px' }}>
+                <p style={{ fontWeight: '800', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+                  01 — Scenario Assessment
+                </p>
+                <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: 0, opacity: 0.85 }}>
+                  Beantwoord 23 vragen over uw project en ontdek welk hosting-scenario (On-Premise, EU Cloud of Hyperscaler) het beste past — inclusief live scorepreview en knock-out analyse.
+                </p>
               </div>
-              <div className="d-flex align-items-center mb-4">
-                <span style={{ fontSize: '24px', marginRight: '15px' }}>✓</span>
-                <span style={{ fontSize: '16px', fontWeight: '700' }}>Objectieve datagedreven scores</span>
-              </div>
-              <div className="d-flex align-items-center mb-4">
-                <span style={{ fontSize: '24px', marginRight: '15px' }}>✓</span>
-                <span style={{ fontSize: '16px', fontWeight: '700' }}>Direct inzicht in Knock-outs</span>
-              </div>
-              <div className="d-flex align-items-center">
-                <span style={{ fontSize: '24px', marginRight: '15px' }}>✓</span>
-                <span style={{ fontSize: '16px', fontWeight: '700' }}>Direct deelbare rapportage</span>
+              {/* Tool 2 */}
+              <div style={{ background: 'rgba(0,0,0,0.12)', padding: '20px' }}>
+                <p style={{ fontWeight: '800', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+                  02 — Soevereiniteitsaudit
+                </p>
+                <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: 0, opacity: 0.85 }}>
+                  Beoordeel een bestaand AI-systeem op 7 soevereiniteitsdimensies: van data-controle en vendor lock-in tot auditability en operationele onafhankelijkheid.
+                </p>
               </div>
             </div>
 
-            <div className="mt-auto pt-5" style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+            <div className="mt-auto pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.15)' }}>
               <p className="small mb-0" style={{ fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Sovereignty Assessment Tool
+                SovScan — Deloitte Sovereignty Platform
               </p>
             </div>
           </div>
