@@ -3,12 +3,43 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
-const SCORE_LABELS = {
-  1: 'Niet geregeld (ad-hoc)',
-  2: 'Beperkt geregeld, vooral leverancier-gedreven',
-  3: 'Basis geregeld, gemengd beeld',
-  4: 'Goed geregeld, grotendeels onder eigen regie',
-  5: 'Volledig geborgd en aantoonbaar onder eigen regie',
+const DEFAULT_MID_LABELS = {
+  2: 'Meer afhankelijk van leverancier',
+  3: 'Gedeelde regie',
+  4: 'Meer regie in eigen organisatie',
+};
+
+const getScoreLabelsForQuestion = (question) => {
+  const text = question?.question_text || '';
+  if (text === 'Waar worden de data en AI-modellen van dit systeem opgeslagen?') {
+    return {
+      1: 'Op hyperscaler-infra buiten de EU',
+      2: DEFAULT_MID_LABELS[2],
+      3: DEFAULT_MID_LABELS[3],
+      4: DEFAULT_MID_LABELS[4],
+      5: 'On-premise onder eigen regie, met lokaal getrainde en beheerde modellen',
+    };
+  }
+
+  const toelichting = question?.toelichting || '';
+  const match = toelichting.match(/Score\s*1\s*:\s*(.*?)\s*[\-–]\s*Score\s*5\s*:\s*(.*)$/i);
+  if (match) {
+    return {
+      1: match[1].trim(),
+      2: DEFAULT_MID_LABELS[2],
+      3: DEFAULT_MID_LABELS[3],
+      4: DEFAULT_MID_LABELS[4],
+      5: match[2].trim(),
+    };
+  }
+
+  return {
+    1: 'Sterk leverancier-afhankelijk',
+    2: DEFAULT_MID_LABELS[2],
+    3: DEFAULT_MID_LABELS[3],
+    4: DEFAULT_MID_LABELS[4],
+    5: 'Sterk onder eigen regie',
+  };
 };
 
 const SCORE_COLORS = {
@@ -485,6 +516,7 @@ const SovereigntyAudit = ({ user, onBack }) => {
 
           {currentDimensionQuestions.map((q, qi) => {
             const currentScore = scores[q.id] || 0;
+            const scoreLabels = getScoreLabelsForQuestion(q);
             return (
               <div key={q.id} className="audit-question-card">
                 <div className="audit-q-number">Stelling {qi + 1}</div>
@@ -501,7 +533,7 @@ const SovereigntyAudit = ({ user, onBack }) => {
                       style={currentScore === s ? { background: '#000', color: '#fff', borderColor: '#000' } : {}}
                     >
                       <span className="score-number">{s}</span>
-                      <span className="score-text">{SCORE_LABELS[s]}</span>
+                      <span className="score-text">{scoreLabels[s]}</span>
                     </button>
                   ))}
                 </div>
