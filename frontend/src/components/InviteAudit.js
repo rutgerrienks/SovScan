@@ -408,11 +408,15 @@ const InviteAudit = ({ token }) => {
               const currentScore = scores[q.id] || 0;
               const scoreLabels = getScoreLabelsForQuestion(q);
               const hoverScore = hoveredScores[q.id];
+              const activeHintScore = hoverScore || currentScore || null;
+              const hintText = activeHintScore
+                ? `Waarom dit niveau: ${SOVEREIGNTY_EXPLANATIONS[activeHintScore]}`
+                : 'Beweeg over een antwoordoptie om te zien waarom dit meer of minder soeverein is.';
               return (
                 <div key={q.id} className="audit-question-card">
                   <div className="audit-q-number">Stelling {qi + 1}</div>
                   <p className="audit-q-text">{q.question_text}</p>
-                  {q.toelichting && <p className="audit-q-hint">{q.toelichting}</p>}
+                  <p className="audit-q-hint">{hintText}</p>
 
                   <div className="audit-score-grid">
                     {[1, 2, 3, 4, 5].map(s => (
@@ -432,11 +436,6 @@ const InviteAudit = ({ token }) => {
                       </button>
                     ))}
                   </div>
-                  {hoverScore && (
-                    <p className="audit-q-hint" style={{ marginTop: '10px', color: '#666' }}>
-                      Waarom dit niveau: {SOVEREIGNTY_EXPLANATIONS[hoverScore]}
-                    </p>
-                  )}
                 </div>
               );
             })}
