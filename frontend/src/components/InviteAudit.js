@@ -4,11 +4,11 @@ import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const SCORE_LABELS = {
-  1: 'Niet soeverein',
-  2: 'Beperkt soeverein',
-  3: 'Gedeeltelijk soeverein',
-  4: 'Grotendeels soeverein',
-  5: 'Volledig soeverein',
+  1: 'Niet geregeld (ad-hoc)',
+  2: 'Beperkt geregeld, vooral leverancier-gedreven',
+  3: 'Basis geregeld, gemengd beeld',
+  4: 'Goed geregeld, grotendeels onder eigen regie',
+  5: 'Volledig geborgd en aantoonbaar onder eigen regie',
 };
 
 const SCORE_COLORS = {
@@ -25,48 +25,6 @@ const getScoreColor = (score) => {
   if (score >= 40) return '#f5c400';
   if (score >= 20) return '#ff8800';
   return '#ff4444';
-};
-
-const getSealLevel = (overallScore) => {
-  if (overallScore >= 85) return { level: 'SEAL-5', label: 'Zeer hoog soevereiniteitsniveau' };
-  if (overallScore >= 70) return { level: 'SEAL-4', label: 'Hoog soevereiniteitsniveau' };
-  if (overallScore >= 55) return { level: 'SEAL-3', label: 'Middenniveau soevereiniteit' };
-  if (overallScore >= 40) return { level: 'SEAL-2', label: 'Basisniveau soevereiniteit' };
-  return { level: 'SEAL-1', label: 'Laag soevereiniteitsniveau' };
-};
-
-const getEucsFit = (dimensionScores, overallScore) => {
-  const minScore = dimensionScores.length
-    ? Math.min(...dimensionScores.map((d) => d.score))
-    : 0;
-
-  if (overallScore >= 75 && minScore >= 60) {
-    return { level: 'High', note: 'Indicatieve aansluiting op hoog assurance-profiel.' };
-  }
-  if (overallScore >= 50 && minScore >= 35) {
-    return { level: 'Substantial', note: 'Indicatieve aansluiting op substantieel assurance-profiel.' };
-  }
-  return { level: 'Basic', note: 'Indicatieve aansluiting op basis assurance-profiel.' };
-};
-
-const DICTU_DIMENSION_MAP = {
-  'Juridisch': ['Data-soevereiniteit', 'Auditability & Compliance'],
-  'Data & AI': ['Data-soevereiniteit', 'Security', 'Auditability & Compliance'],
-  'Technologie': ['Vendor Lock-in', 'Flexibiliteit / maatwerk', 'Innovatie & schaalbaarheid'],
-  'Operationeel': ['Operationele controle', 'Security', 'Prijs / TCO'],
-  'Mens': ['Operationele controle', 'Vendor Lock-in'],
-};
-
-const getDictuLensScores = (dimensionScores) => {
-  const scoreByDimension = Object.fromEntries(dimensionScores.map((d) => [d.dimensie, d.score]));
-  return Object.entries(DICTU_DIMENSION_MAP).map(([name, relatedDimensions]) => {
-    const mapped = relatedDimensions
-      .map((dim) => scoreByDimension[dim])
-      .filter((v) => typeof v === 'number');
-    if (!mapped.length) return { name, score: null };
-    const avg = Math.round(mapped.reduce((sum, v) => sum + v, 0) / mapped.length);
-    return { name, score: avg };
-  });
 };
 
 // ── Radar / Spider chart — pure SVG ─────────────────────────────────────────
@@ -277,7 +235,7 @@ const InviteAudit = ({ token }) => {
           </p>
           <p style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '32px' }}>
             U bent uitgenodigd om een soevereiniteitsaudit in te vullen. Beoordeel het systeem op 7 dimensies
-            met een score van 1 (niet soeverein) tot 5 (volledig soeverein) per stelling.
+            door per stelling de optie te kiezen die het best past bij de huidige situatie.
           </p>
           <div className="card shadow-sm bg-light">
             <form onSubmit={startAudit}>
@@ -344,6 +302,14 @@ const InviteAudit = ({ token }) => {
               Beoordeel onderstaande stellingen voor <strong>{invite.projectName}</strong>.
             </p>
 
+            {dimensionIndex === dimensions.length - 1 && (
+              <div className="mb-4">
+                <button className="btn btn-success px-5 py-3" onClick={handleSubmit} disabled={loading}>
+                  {loading ? 'Berekenen...' : 'Bereken Soevereiniteitsscore'}
+                </button>
+              </div>
+            )}
+
             {currentDimensionQuestions.map((q, qi) => {
               const currentScore = scores[q.id] || 0;
               return (
@@ -385,9 +351,6 @@ const InviteAudit = ({ token }) => {
 
   if (step === 'result' && currentResult) {
     const { dimensionScores = [], overallScore = 0 } = currentResult;
-    const seal = getSealLevel(overallScore);
-    const eucs = getEucsFit(dimensionScores, overallScore);
-    const dictuLensScores = getDictuLensScores(dimensionScores);
 
     return (
       <div className="App">
@@ -421,47 +384,6 @@ const InviteAudit = ({ token }) => {
                 {overallScore < 40 && 'Het systeem heeft een lage soevereiniteitsscore. Er zijn kritieke afhankelijkheden die de digitale autonomie beperken.'}
               </p>
             </div>
-          </div>
-
-          <div className="card shadow-sm p-4 mb-5" style={{ borderLeft: '4px solid #86BC25' }}>
-            <h3 className="mb-3">EU/DICTU Kaderduiding</h3>
-            <div className="row g-4">
-              <div className="col-md-4">
-                <p className="text-muted mb-1" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Indicatieve SEAL
-                </p>
-                <div style={{ fontSize: '24px', fontWeight: 800 }}>{seal.level}</div>
-                <p className="text-muted small mb-0">{seal.label}</p>
-              </div>
-              <div className="col-md-4">
-                <p className="text-muted mb-1" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  EUCS Assurance Fit
-                </p>
-                <div style={{ fontSize: '24px', fontWeight: 800 }}>{eucs.level}</div>
-                <p className="text-muted small mb-0">{eucs.note}</p>
-              </div>
-              <div className="col-md-4">
-                <p className="text-muted mb-1" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Bronkaders
-                </p>
-                <p className="small mb-0" style={{ lineHeight: 1.5 }}>
-                  DICTU Toetsingsinstrument (v1.0.1, 2026) en EUCS-kader (Basic/Substantial/High).
-                </p>
-              </div>
-            </div>
-            <hr />
-            <p className="mb-2" style={{ fontWeight: 700 }}>DICTU-dimensielens (afgeleid)</p>
-            {dictuLensScores.map((item) => (
-              <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', padding: '6px 0' }}>
-                <span>{item.name}</span>
-                <span style={{ fontWeight: 700, color: item.score === null ? '#999' : getScoreColor(item.score || 0) }}>
-                  {item.score === null ? 'n.v.t.' : `${item.score}%`}
-                </span>
-              </div>
-            ))}
-            <p className="text-muted small mb-0 mt-3">
-              Deze duiding is indicatief en geen formele certificering of juridisch oordeel.
-            </p>
           </div>
 
           {/* Spider chart + bars */}
