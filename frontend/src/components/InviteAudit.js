@@ -9,14 +9,76 @@ const DEFAULT_MID_LABELS = {
   4: 'Meer regie in eigen organisatie',
 };
 
+const SOVEREIGNTY_EXPLANATIONS = {
+  1: 'Lage soevereiniteit: sterke externe afhankelijkheid en beperkte eigen controle.',
+  2: 'Beperkte soevereiniteit: enkele waarborgen, maar regie ligt vooral extern.',
+  3: 'Gemengd beeld: basismaatregelen aanwezig, met gedeelde regie en resterende afhankelijkheden.',
+  4: 'Hoge soevereiniteit: regie ligt grotendeels intern met aantoonbare borging.',
+  5: 'Zeer hoge soevereiniteit: maximale eigen regie, met sterke juridische en technische borging.',
+};
+
+const getMidLabelsByDimension = (dimensie) => {
+  if (dimensie === 'Data-soevereiniteit') {
+    return {
+      2: 'EU-regio deels mogelijk, maar leverancier bepaalt locatie en doorgifte',
+      3: 'Data vooral in EU, met gedeelde controle op locatie en verwerking',
+      4: 'Data primair in NL/EU met strikte, aantoonbare doorgiftebeheersing',
+    };
+  }
+  if (dimensie === 'Security') {
+    return {
+      2: 'Basale security door leverancier, beperkt zelfstandig aantoonbaar',
+      3: 'Standaard controls met gedeelde verantwoordelijkheid',
+      4: 'Versterkte controls met grotendeels eigen toetsing en regie',
+    };
+  }
+  if (dimensie === 'Vendor Lock-in') {
+    return {
+      2: 'Sterke afhankelijkheid van proprietary diensten en tooling',
+      3: 'Migratie is mogelijk, maar met merkbare inspanning en kosten',
+      4: 'Portabiliteit grotendeels geborgd met open standaarden en exit-afspraken',
+    };
+  }
+  if (dimensie === 'Flexibiliteit / maatwerk' || dimensie === 'Innovatie & schaalbaarheid') {
+    return {
+      2: 'Aanpassingen vooral binnen vendor-kaders',
+      3: 'Maatwerk mogelijk, maar met functionele beperkingen',
+      4: 'Ruime aanpasbaarheid onder eigen architectuurkeuzes',
+    };
+  }
+  if (dimensie === 'Auditability & Compliance') {
+    return {
+      2: 'Compliance steunt vooral op leverancierverklaringen',
+      3: 'Periodieke rapportages aanwezig, met beperkte eigen auditdiepgang',
+      4: 'Uitgebreide auditrechten en grotendeels zelfstandige aantoonbaarheid',
+    };
+  }
+  if (dimensie === 'Operationele controle') {
+    return {
+      2: 'Operationeel beheer ligt grotendeels buiten de eigen organisatie',
+      3: 'Operationele regie is gedeeld met duidelijke rolverdeling',
+      4: 'Kernoperaties onder eigen regie, leverancier aanvullend',
+    };
+  }
+  if (dimensie === 'Prijs / TCO') {
+    return {
+      2: 'Kosten beperkt voorspelbaar, met duidelijke externe afhankelijkheden',
+      3: 'Redelijk inzicht, maar nog variabiliteit in totale kosten',
+      4: 'Hoog kostentransparant met grotendeels beheersbare variatie',
+    };
+  }
+  return DEFAULT_MID_LABELS;
+};
+
 const getScoreLabelsForQuestion = (question) => {
   const text = question?.question_text || '';
+  const midLabels = getMidLabelsByDimension(question?.dimensie);
   if (text === 'Waar worden de data en AI-modellen van dit systeem opgeslagen?') {
     return {
       1: 'Op hyperscaler-infra buiten de EU',
-      2: DEFAULT_MID_LABELS[2],
-      3: DEFAULT_MID_LABELS[3],
-      4: DEFAULT_MID_LABELS[4],
+      2: 'In EU-regio bij hyperscaler, maar onder niet-EU moederbedrijf en standaardvoorwaarden',
+      3: 'In EU-cloud/private cloud met gedeelde regie op data en modellen',
+      4: 'In NL/EU-omgeving met contractueel afgeschermde toegang en primair eigen beheer',
       5: 'On-premise onder eigen regie, met lokaal getrainde en beheerde modellen',
     };
   }
@@ -26,18 +88,18 @@ const getScoreLabelsForQuestion = (question) => {
   if (match) {
     return {
       1: match[1].trim(),
-      2: DEFAULT_MID_LABELS[2],
-      3: DEFAULT_MID_LABELS[3],
-      4: DEFAULT_MID_LABELS[4],
+      2: midLabels[2],
+      3: midLabels[3],
+      4: midLabels[4],
       5: match[2].trim(),
     };
   }
 
   return {
     1: 'Sterk leverancier-afhankelijk',
-    2: DEFAULT_MID_LABELS[2],
-    3: DEFAULT_MID_LABELS[3],
-    4: DEFAULT_MID_LABELS[4],
+    2: midLabels[2],
+    3: midLabels[3],
+    4: midLabels[4],
     5: 'Sterk onder eigen regie',
   };
 };
@@ -171,6 +233,7 @@ const InviteAudit = ({ token }) => {
   const [currentResult, setCurrentResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hoveredScores, setHoveredScores] = useState({});
 
   useEffect(() => {
     const init = async () => {
@@ -344,6 +407,7 @@ const InviteAudit = ({ token }) => {
             {currentDimensionQuestions.map((q, qi) => {
               const currentScore = scores[q.id] || 0;
               const scoreLabels = getScoreLabelsForQuestion(q);
+              const hoverScore = hoveredScores[q.id];
               return (
                 <div key={q.id} className="audit-question-card">
                   <div className="audit-q-number">Stelling {qi + 1}</div>
@@ -356,6 +420,10 @@ const InviteAudit = ({ token }) => {
                         key={s}
                         type="button"
                         onClick={() => handleScoreChange(q.id, s)}
+                        onMouseEnter={() => setHoveredScores(prev => ({ ...prev, [q.id]: s }))}
+                        onMouseLeave={() => setHoveredScores(prev => ({ ...prev, [q.id]: undefined }))}
+                        onFocus={() => setHoveredScores(prev => ({ ...prev, [q.id]: s }))}
+                        onBlur={() => setHoveredScores(prev => ({ ...prev, [q.id]: undefined }))}
                         className={`audit-score-btn ${currentScore === s ? 'active' : ''}`}
                         style={currentScore === s ? { background: SCORE_COLORS[s], color: '#fff', borderColor: SCORE_COLORS[s] } : {}}
                       >
@@ -364,6 +432,11 @@ const InviteAudit = ({ token }) => {
                       </button>
                     ))}
                   </div>
+                  {hoverScore && (
+                    <p className="audit-q-hint" style={{ marginTop: '10px', color: '#666' }}>
+                      Waarom dit niveau: {SOVEREIGNTY_EXPLANATIONS[hoverScore]}
+                    </p>
+                  )}
                 </div>
               );
             })}
