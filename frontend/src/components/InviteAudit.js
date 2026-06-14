@@ -17,6 +17,60 @@ const SOVEREIGNTY_EXPLANATIONS = {
   5: 'Zeer hoge soevereiniteit: maximale eigen regie, met sterke juridische en technische borging.',
 };
 
+const getExampleContext = (dimensie, score) => {
+  const level = score <= 2 ? 'low' : score === 3 ? 'mid' : 'high';
+  const contexts = {
+    'Data-soevereiniteit': {
+      low: 'Voorbeelden: wetgeving buiten EU (bijv. CLOUD Act), tooling zoals standaard hyperscaler-opslag, implementatie met vrije datadoorgifte buiten EU.',
+      mid: 'Voorbeelden: AVG met SCC/TIA, tooling met EU-regio en basis sleutelbeheer, implementatie met gedeelde controle op datalokatie.',
+      high: 'Voorbeelden: AVG + BIO/NIS2-conforme borging, tooling zoals HYOK/KMS onder eigen beheer, implementatie met datalokalisatie in NL/EU en streng doorgiftebeleid.',
+    },
+    'Security': {
+      low: 'Voorbeelden: beperkte harde eisen uit BIO/ISO, tooling vooral vendor-default security, implementatie zonder aantoonbare hardening/segmentatie.',
+      mid: 'Voorbeelden: baseline op BIO/ISO 27001, tooling zoals SIEM/EDR + basis IAM, implementatie met gedeelde monitoring en periodieke scans.',
+      high: 'Voorbeelden: BIO/NIS2 plus aantoonbare controls, tooling zoals confidential computing, PAM en centrale SIEM/SOAR, implementatie met least-privilege en continue control testing.',
+    },
+    'Vendor Lock-in': {
+      low: 'Voorbeelden: contractueel beperkte exit, tooling met proprietary API\'s, implementatie met hoge migratiekosten/egress-dependentie.',
+      mid: 'Voorbeelden: gedeeltelijke exit-clausules, tooling mix open + proprietary, implementatie met migratie mogelijk maar complex.',
+      high: 'Voorbeelden: expliciete exit- en portabiliteitsafspraken, tooling op open standaarden (bijv. Kubernetes/Terraform), implementatie met periodiek geteste exit-oefeningen.',
+    },
+    'Flexibiliteit / maatwerk': {
+      low: 'Voorbeelden: leverancierkaders dominant, tooling vooral managed black-box diensten, implementatie met weinig architectuurruimte.',
+      mid: 'Voorbeelden: deels maatwerk toegestaan, tooling met PaaS + eigen componenten, implementatie met compromis tussen snelheid en autonomie.',
+      high: 'Voorbeelden: veel architectuurvrijheid, tooling met IaC en platform onder eigen regie, implementatie met modulair ontwerp en vervangbare componenten.',
+    },
+    'Auditability & Compliance': {
+      low: 'Voorbeelden: vooral vendor-attestaties, tooling met beperkte logging/audittrail, implementatie met lage forensische reproduceerbaarheid.',
+      mid: 'Voorbeelden: AVG/sectornormen deels aantoonbaar, tooling met centrale logging + periodieke rapportages, implementatie met gedeelde auditverantwoordelijkheid.',
+      high: 'Voorbeelden: sterke aantoonbaarheid tegen AVG/BIO/NIS2, tooling met immutabele logs en volledige traceability, implementatie met zelfstandige audit- en forensische capaciteit.',
+    },
+    'Operationele controle': {
+      low: 'Voorbeelden: operationele afhankelijkheid van leverancier, tooling vooral extern beheerd, implementatie met beperkte eigen runbooks/kennisborging.',
+      mid: 'Voorbeelden: gedeelde operatie, tooling met gezamenlijke beheerprocessen, implementatie met deels intern incident/change management.',
+      high: 'Voorbeelden: interne regie op SRE/operations, tooling zoals eigen monitoring en deployment pipelines, implementatie met geborgde continuiteit en duidelijke escalatiepaden.',
+    },
+    'Innovatie & schaalbaarheid': {
+      low: 'Voorbeelden: innovatie gebonden aan vendor-roadmap, tooling beperkt aanpasbaar, implementatie met trage iteratie.',
+      mid: 'Voorbeelden: innovatie deels zelfstandig, tooling met standaard platformdiensten + extensies, implementatie met periodieke releasecycli.',
+      high: 'Voorbeelden: hoge innovatiesnelheid onder eigen regie, tooling met CI/CD en reproduceerbare omgevingen, implementatie met snelle experimentatie en gecontroleerde opschaling.',
+    },
+    'Prijs / TCO': {
+      low: 'Voorbeelden: beperkte kostentransparantie, tooling zonder gedetailleerde cost observability, implementatie met onvoorspelbare egress/support-kosten.',
+      mid: 'Voorbeelden: basis FinOps en budgetguardrails, tooling met standaard cost dashboards, implementatie met gedeeltelijk voorspelbare maandlasten.',
+      high: 'Voorbeelden: contractueel voorspelbare kosten en governance, tooling met geavanceerde FinOps/showback, implementatie met structureel beheersbare TCO en periodieke optimalisatie.',
+    },
+  };
+
+  const byDimension = contexts[dimensie] || {
+    low: 'Voorbeelden: beperkte juridische en technische borging, tooling vooral vendor-gedreven, implementatie met hoge externe afhankelijkheid.',
+    mid: 'Voorbeelden: basis borging aanwezig, tooling en regie gedeeld, implementatie met gemengd soevereiniteitsprofiel.',
+    high: 'Voorbeelden: sterke juridische/technische borging, tooling onder eigen regie, implementatie met aantoonbare autonomie.',
+  };
+
+  return byDimension[level];
+};
+
 const getMidLabelsByDimension = (dimensie) => {
   if (dimensie === 'Data-soevereiniteit') {
     return {
@@ -410,7 +464,7 @@ const InviteAudit = ({ token }) => {
               const hoverScore = hoveredScores[q.id];
               const activeHintScore = hoverScore || currentScore || null;
               const hintText = activeHintScore
-                ? `Waarom dit niveau: ${SOVEREIGNTY_EXPLANATIONS[activeHintScore]}`
+                ? `Waarom dit niveau: ${SOVEREIGNTY_EXPLANATIONS[activeHintScore]} ${getExampleContext(q.dimensie, activeHintScore)}`
                 : 'Beweeg over een antwoordoptie om te zien waarom dit meer of minder soeverein is.';
               return (
                 <div key={q.id} className="audit-question-card">
