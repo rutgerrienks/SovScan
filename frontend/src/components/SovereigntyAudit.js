@@ -174,12 +174,110 @@ const getScoreColor = (score) => {
   return '#ff4444';
 };
 
+const getScoreNarrative = (overallScore, dimensionScores = []) => {
+  if (!Array.isArray(dimensionScores) || dimensionScores.length === 0) {
+    return [
+      'De totaalscore geeft een indicatie van de huidige digitale soevereiniteit. Gebruik de dimensiescores om verbeterprioriteiten te bepalen.',
+    ];
+  }
+
+  const sorted = [...dimensionScores].sort((a, b) => b.score - a.score);
+  const strongest = sorted.slice(0, 2).map(d => `${d.dimensie} (${d.score}%)`);
+  const weakest = [...sorted].reverse().slice(0, 2).map(d => `${d.dimensie} (${d.score}%)`);
+
+  const maturityLine =
+    overallScore >= 80
+      ? 'U zit in een hoge volwassenheidszone: governance, control en operationele uitvoer liggen grotendeels onder eigen regie.'
+      : overallScore >= 60
+      ? 'U zit in een werkbare midden-hoge zone: de basis is sterk, maar er zijn nog concrete afhankelijkheden die risico geven bij incidenten of exits.'
+      : overallScore >= 40
+      ? 'U zit in een kwetsbare middenzone: de soevereiniteit is niet stabiel genoeg voor hoge afhankelijkheid van externe partijen.'
+      : 'U zit in een lage volwassenheidszone: de huidige inrichting maakt de organisatie gevoelig voor regie-, continuiteits- en compliance-risico.';
+
+  return [
+    maturityLine,
+    `Sterkste dimensies: ${strongest.join(', ')}. Zwakste dimensies: ${weakest.join(', ')}.`,
+    'Aanpakadvies: borg eerst minimale regie op data, auditability en operationele controle; versnel daarna lock-in reductie en structurele TCO-sturing.',
+  ];
+};
+
+// ── SEAL-inschatting ────────────────────────────────────────────────────────
+// Indicatieve afleiding van het Sovereignty Effectiveness Assurance Level
+// (EU Cloud Sovereignty Framework, okt 2025). We volgen het zwakste-schakel-
+// principe van het kader: de SEAL-niveaus vormen een cumulatieve ladder. Elke
+// auditdimensie is gekoppeld aan een SEAL-laag (zie SEAL_TIERS); je bereikt een
+// niveau alleen als álle onderliggende lagen voldoende geborgd zijn. Zo telt
+// "niets doen aan jurisdictionele soevereiniteit" door, ook bij een redelijk
+// gemiddelde. LET OP: de koppeling dimensie→laag en de drempel zijn een eigen
+// invulling — duiding, geen framework-conforme SEAL-meting.
+const SEAL_LEVELS = [
+  { code: 'SEAL-0', name: 'No Sovereignty', nameNl: 'Geen soevereiniteit', color: '#c0392b',
+    meaning: 'Dienst, technologie of operatie staat volledig onder controle van niet-EU partijen en valt volledig onder niet-EU jurisdictie.' },
+  { code: 'SEAL-1', name: 'Jurisdictional Sovereignty', nameNl: 'Jurisdictionele soevereiniteit', color: '#e67e22',
+    meaning: 'EU-recht is formeel van toepassing maar beperkt afdwingbaar; dienst, technologie of operatie staat nog onder exclusieve controle van niet-EU partijen.' },
+  { code: 'SEAL-2', name: 'Data Sovereignty', nameNl: 'Datasoevereiniteit', color: '#f1c40f',
+    meaning: 'EU-jurisdictie is van toepassing, maar er blijven materiële afhankelijkheden; dienst, technologie of operatie staat onder indirecte controle van niet-EU partijen.' },
+  { code: 'SEAL-3', name: 'Technological Sovereignty', nameNl: 'Technologische soevereiniteit', color: '#7cb342',
+    meaning: 'EU-jurisdictie van toepassing en EU-actoren hebben betekenisvolle maar niet volledige invloed; slechts marginale controle door niet-EU partijen.' },
+  { code: 'SEAL-4', name: 'Full Digital Sovereignty', nameNl: 'Volledige digitale soevereiniteit', color: '#2e7d32',
+    meaning: 'Technologie en operatie staan volledig onder EU-controle, uitsluitend onder EU-jurisdictie, zonder kritieke niet-EU afhankelijkheden.' },
+];
+
+// Drempel waarop een thema-laag als 'geborgd' geldt (op de 0-100% dimensieschaal).
+const SEAL_THRESHOLD = 60;
+
+// Koppeling auditdimensie → SEAL-laag (cumulatieve ladder, laag 1 = fundament).
+// Prijs / TCO valt bewust buiten de soevereiniteitsladder (kostendimensie).
+const SEAL_TIERS = [
+  { level: 1, dims: ['Auditability & Compliance'] },                              // Jurisdictioneel: EU-recht & afdwingbaarheid
+  { level: 2, dims: ['Data-soevereiniteit'] },                                    // Data: locatie, toegang, keten
+  { level: 3, dims: ['Vendor Lock-in', 'Security', 'Flexibiliteit / maatwerk'] }, // Technologisch: onafhankelijkheid & isolatie
+  { level: 4, dims: ['Operationele controle', 'Innovatie & schaalbaarheid'] },    // Volledig: eigen operatie
+];
+
+const getSealEstimate = (overallScore, dimensionScores = []) => {
+  const byDim = Object.fromEntries(dimensionScores.map(d => [d.dimensie, d.score]));
+
+  // Per laag: gemiddelde van de aanwezige (beantwoorde) dimensies.
+  const tiers = SEAL_TIERS.map(t => {
+    const present = t.dims.filter(dm => byDim[dm] !== undefined);
+    const score = present.length
+      ? Math.round(present.reduce((a, dm) => a + byDim[dm], 0) / present.length)
+      : null;
+    return {
+      level: t.level,
+      dims: t.dims,
+      score,
+      hasData: present.length > 0,
+      passed: score !== null && score >= SEAL_THRESHOLD,
+    };
+  });
+
+  // Hoogste aaneengesloten laag die slaagt, vanaf laag 1 (zwakste schakel telt).
+  let achieved = 0;
+  for (const t of tiers) { if (t.passed) achieved = t.level; else break; }
+
+  const level = SEAL_LEVELS[achieved];
+  const blocking = tiers.find(t => !t.passed); // eerste laag die het niveau begrenst
+
+  let why;
+  if (!blocking) {
+    why = `Alle thema-lagen tot en met ${level.code} zijn voldoende geborgd (drempel ${SEAL_THRESHOLD}%).`;
+  } else if (!blocking.hasData) {
+    why = `${blocking.code} — ${SEAL_LEVELS[blocking.level].nameNl} — is niet aangetoond: er zijn geen beantwoorde stellingen voor deze laag, dus een hoger niveau wordt niet toegekend. In het EU-kader bepaalt de zwakste schakel het niveau.`;
+  } else {
+    why = `${blocking.code} — ${SEAL_LEVELS[blocking.level].nameNl} — scoort ${blocking.score}% en blijft onder de drempel van ${SEAL_THRESHOLD}%. Daardoor wordt een hoger niveau niet gehaald: het kader telt de zwakste schakel, niet het gemiddelde (${overallScore}%).`;
+  }
+
+  return { ...level, index: achieved, why, tiers };
+};
+
 // Benchmark / referentie-profielen — indicatieve waarden voor vergelijking
 // Per dimensie een verwachte soevereiniteits-score (0-100). Niet-vermelde dimensies vallen weg.
 const BENCHMARKS = {
   'overheid': {
     label: 'Publieke sector / Rijksoverheid',
-    description: 'Verwachte soevereiniteit voor overheidsorganisaties met BBi/NIS2 verplichtingen.',
+    description: 'Indicatieve referentie voor overheidsorganisaties met hoge eisen op governance, compliance en continuiteit.',
     profile: {
       'Data-soevereiniteit':       90,
       'Security':                  85,
@@ -190,10 +288,14 @@ const BENCHMARKS = {
       'Innovatie & schaalbaarheid':55,
       'Prijs / TCO':               60,
     },
+    sources: [
+      { title: 'NIS2-richtlijn (EU 2022/2555)', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2555' },
+      { title: 'AVG/GDPR (EU 2016/679)', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj' },
+    ],
   },
   'finance': {
     label: 'Financiële sector (bank/verzekeraar)',
-    description: 'DNB/EBA-richtsnoeren, DORA & operationele weerbaarheid.',
+    description: 'Indicatieve referentie voor financiële instellingen met nadruk op digitale operationele weerbaarheid.',
     profile: {
       'Data-soevereiniteit':       80,
       'Security':                  90,
@@ -204,10 +306,14 @@ const BENCHMARKS = {
       'Innovatie & schaalbaarheid':70,
       'Prijs / TCO':               65,
     },
+    sources: [
+      { title: 'DORA-verordening (EU 2022/2554)', url: 'https://eur-lex.europa.eu/eli/reg/2022/2554/oj' },
+      { title: 'NIS2-richtlijn (EU 2022/2555)', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2555' },
+    ],
   },
   'healthcare': {
     label: 'Zorg & medisch',
-    description: 'Patiëntdata onder AVG + NEN 7510; hoge eisen aan data-soevereiniteit.',
+    description: 'Indicatieve referentie voor zorgomgevingen met patiëntdata en strenge informatiebeveiligingseisen.',
     profile: {
       'Data-soevereiniteit':       85,
       'Security':                  85,
@@ -218,6 +324,10 @@ const BENCHMARKS = {
       'Innovatie & schaalbaarheid':60,
       'Prijs / TCO':               55,
     },
+    sources: [
+      { title: 'AVG/GDPR (EU 2016/679)', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj' },
+      { title: 'NEN 7510 (informatiebeveiliging in de zorg)', url: 'https://www.nen.nl/nen-7510' },
+    ],
   },
   'commercial': {
     label: 'Commerciële sector / SaaS-gericht',
@@ -232,6 +342,10 @@ const BENCHMARKS = {
       'Innovatie & schaalbaarheid':80,
       'Prijs / TCO':               75,
     },
+    sources: [
+      { title: 'ISO/IEC 27001:2022 (ISMS)', url: 'https://www.iso.org/standard/27001' },
+      { title: 'AVG/GDPR (EU 2016/679)', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj' },
+    ],
   },
   'dictu': {
     label: 'DICTU-kader (indicatief)',
@@ -246,6 +360,11 @@ const BENCHMARKS = {
       'Innovatie & schaalbaarheid':65,
       'Prijs / TCO':               60,
     },
+    sources: [
+      { title: 'NIS2-richtlijn (EU 2022/2555)', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2555' },
+      { title: 'AVG/GDPR (EU 2016/679)', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj' },
+      { title: 'ISO/IEC 27001:2022 (ISMS)', url: 'https://www.iso.org/standard/27001' },
+    ],
   },
 };
 
@@ -309,7 +428,12 @@ const RadarChart = ({ dimensionScores, benchmark, size = 420 }) => {
   };
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: 'block', margin: '0 auto' }}>
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      style={{ display: 'block', margin: '0 auto', width: '100%', maxWidth: `${size}px`, height: 'auto', overflow: 'visible' }}
+    >
       {/* Grid rings */}
       {gridRings.map((frac) => (
         <path key={frac} d={ringPath(frac)}
@@ -590,6 +714,11 @@ const SovereigntyAudit = ({ user, onBack }) => {
               onClick={() => setDimensionIndex(prev => Math.max(0, prev - 1))}
               disabled={dimensionIndex === 0} style={{ fontSize: '10px' }}
             >&larr; VORIGE</button>
+            {isLastDim && (
+              <button className="btn btn-success btn-sm py-1 px-3" onClick={handleSubmit} disabled={loading} style={{ fontSize: '10px' }}>
+                {loading ? 'Berekenen...' : 'BEREKEN SCORE'}
+              </button>
+            )}
             {!isLastDim && (
               <button className="btn btn-outline-dark btn-sm py-1 px-3"
                 onClick={() => setDimensionIndex(prev => Math.min(dimensions.length - 1, prev + 1))}
@@ -622,14 +751,6 @@ const SovereigntyAudit = ({ user, onBack }) => {
           }}>
             {answeredInDim} / {currentDimensionQuestions.length} stellingen beantwoord in deze dimensie
           </div>
-
-          {isLastDim && (
-            <div className="mb-4">
-              <button className="btn btn-success px-5 py-3" onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Berekenen...' : 'Bereken Soevereiniteitsscore'}
-              </button>
-            </div>
-          )}
 
           {currentDimensionQuestions.map((q, qi) => {
             const currentScore = scores[q.id] || 0;
@@ -687,6 +808,8 @@ const SovereigntyAudit = ({ user, onBack }) => {
   const renderResult = () => {
     if (!currentResult) return null;
     const { dimensionScores = [], overallScore = 0 } = currentResult;
+    const narrativeLines = getScoreNarrative(overallScore, dimensionScores);
+    const seal = getSealEstimate(overallScore, dimensionScores);
 
     return (
       <div className="main-container">
@@ -706,24 +829,75 @@ const SovereigntyAudit = ({ user, onBack }) => {
             </div>
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: '16px', lineHeight: 1.6, color: '#ccc', marginBottom: 0 }}>
-              {overallScore >= 80 && 'Het systeem is sterk soeverein ingericht. Uw organisatie heeft grotendeels controle over data, technologie en operaties.'}
-              {overallScore >= 60 && overallScore < 80 && 'Het systeem toont een goede mate van soevereiniteit, maar er zijn verbeterpunten op specifieke dimensies.'}
-              {overallScore >= 40 && overallScore < 60 && 'Het systeem heeft een gemiddelde soevereiniteitsscore. Er zijn significante afhankelijkheden van externe partijen.'}
-              {overallScore < 40 && 'Het systeem heeft een lage soevereiniteitsscore. Er zijn kritieke afhankelijkheden die de digitale autonomie beperken.'}
-            </p>
+            {narrativeLines.map((line, idx) => (
+              <p key={idx} style={{ fontSize: '16px', lineHeight: 1.55, color: idx === 0 ? '#f2f2f2' : '#cfcfcf', marginBottom: idx === narrativeLines.length - 1 ? 0 : '8px' }}>
+                {line}
+              </p>
+            ))}
           </div>
+        </div>
+
+        {/* Indicatieve SEAL-inschatting (afgeleid uit de totaalscore) */}
+        <div className="card shadow-sm p-4 mb-5" style={{ borderLeft: `6px solid ${seal.color}` }}>
+          <div className="d-flex align-items-center flex-wrap gap-3 mb-3">
+            <span style={{ background: seal.color, color: '#fff', fontWeight: 800, fontSize: '20px', padding: '8px 16px', borderRadius: '8px', letterSpacing: '0.5px' }}>
+              {seal.code}
+            </span>
+            <div>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#666', fontWeight: 700 }}>
+                Geschat soevereiniteitsniveau
+              </div>
+              <div style={{ fontSize: '20px', fontWeight: 800 }}>
+                {seal.nameNl} <span style={{ color: '#888', fontWeight: 600, fontSize: '15px' }}>({seal.name})</span>
+              </div>
+            </div>
+          </div>
+          <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '10px' }}>
+            <strong>Wat dit betekent:</strong> {seal.meaning}
+          </p>
+          <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px', color: '#444' }}>
+            <strong>Waarom dit niveau:</strong> {seal.why}
+          </p>
+
+          {/* Ladder-overzicht: per laag de geborgde status (zwakste schakel zichtbaar) */}
+          <div style={{ border: '1px solid #e3e6ea', borderRadius: '8px', overflow: 'hidden', marginBottom: '12px' }}>
+            {seal.tiers.map((t, i) => {
+              const lvl = SEAL_LEVELS[t.level];
+              const status = t.passed ? '✓ geborgd' : t.hasData ? '✗ onvoldoende' : '— niet aangetoond';
+              const statusColor = t.passed ? '#2e7d32' : t.hasData ? '#c0392b' : '#999';
+              return (
+                <div key={t.level} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 12px',
+                  borderTop: i === 0 ? 'none' : '1px solid #eef0f3', background: t.level <= seal.index ? '#f3f8f3' : '#fff' }}>
+                  <span style={{ width: '64px', fontWeight: 800, color: lvl.color }}>{lvl.code}</span>
+                  <span style={{ flex: 1, fontSize: '13px', color: '#444' }}>{lvl.nameNl}</span>
+                  <span style={{ width: '52px', textAlign: 'right', fontSize: '13px', fontWeight: 700, color: '#333' }}>
+                    {t.score === null ? 'n.v.t.' : `${t.score}%`}
+                  </span>
+                  <span style={{ width: '120px', textAlign: 'right', fontSize: '13px', fontWeight: 700, color: statusColor }}>{status}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="mb-0">
+            <span style={{ display: 'inline-block', background: '#fff3cd', color: '#8a6d3b', border: '1px solid #ffe69c', borderRadius: '4px', padding: '2px 8px', fontWeight: 700, fontSize: '12px' }}>
+              Indicatief — dimensies gekoppeld aan SEAL-lagen, drempel {SEAL_THRESHOLD}%; geen framework-conforme SEAL-meting.
+            </span>
+            <span style={{ marginLeft: '10px', fontSize: '12px', color: '#666' }}>
+              Niveaudefinities: EU Cloud Sovereignty Framework (okt 2025).
+            </span>
+          </p>
         </div>
 
         {/* Per dimension scores — spider chart + bars */}
         <div className="card shadow-sm p-4 mb-5">
           <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h3 className="mb-0">Score per Dimensie</h3>
-            <div className="d-flex align-items-center gap-2 no-print">
-              <label htmlFor="benchmark-select" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#888', fontWeight: '700', marginBottom: 0 }}>
+            <div className="d-flex align-items-center gap-2 no-print" style={{ background: '#f8f9fb', border: '1px solid #e3e6ea', padding: '8px 10px', borderRadius: '8px' }}>
+              <label htmlFor="benchmark-select" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#666', fontWeight: '700', marginBottom: 0 }}>
                 Vergelijk met:
               </label>
-              <select id="benchmark-select" className="form-select form-select-sm" style={{ width: 'auto' }}
+              <select id="benchmark-select" className="form-select form-select-sm" style={{ width: 'auto', minWidth: '250px', borderColor: '#c7cbd1', fontWeight: '600' }}
                 value={selectedBenchmark} onChange={e => setSelectedBenchmark(e.target.value)}>
                 <option value="">— Geen referentie —</option>
                 {Object.entries(BENCHMARKS).map(([k, v]) => (
@@ -733,10 +907,27 @@ const SovereigntyAudit = ({ user, onBack }) => {
             </div>
           </div>
           {selectedBenchmark && BENCHMARKS[selectedBenchmark] && (
-            <p className="text-muted small mb-3" style={{ fontSize: '13px' }}>
-              <span style={{ display: 'inline-block', width: '20px', height: '2px', background: '#0066cc', verticalAlign: 'middle', marginRight: '8px', borderTop: '2px dashed #0066cc' }}></span>
-              {BENCHMARKS[selectedBenchmark].description}
-            </p>
+            <div className="mb-3" style={{ fontSize: '13px' }}>
+              <p className="text-muted small mb-2" style={{ fontSize: '13px' }}>
+                <span style={{ display: 'inline-block', width: '20px', height: '2px', background: '#0066cc', verticalAlign: 'middle', marginRight: '8px', borderTop: '2px dashed #0066cc' }}></span>
+                {BENCHMARKS[selectedBenchmark].description}
+              </p>
+              <p className="mb-2" style={{ fontSize: '12px' }}>
+                <span style={{ display: 'inline-block', background: '#fff3cd', color: '#8a6d3b', border: '1px solid #ffe69c', borderRadius: '4px', padding: '2px 8px', fontWeight: 700 }}>
+                  Indicatief referentieprofiel — expert-inschatting, geen gemeten benchmark.
+                </span>
+              </p>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                Relevante kaders: {BENCHMARKS[selectedBenchmark].sources.map((source, idx) => (
+                  <span key={source.url}>
+                    {idx > 0 && ' | '}
+                    <a href={source.url} target="_blank" rel="noreferrer" style={{ color: '#0057a3', textDecoration: 'none', fontWeight: 600 }}>
+                      {source.title}
+                    </a>
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
           <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
             {/* Radar chart */}
