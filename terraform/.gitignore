@@ -1,0 +1,7 @@
+# Terraform state bevat gevoelige waarden (o.a. DB-wachtwoord) — niet committen.
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+crash.log
