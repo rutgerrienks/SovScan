@@ -1,0 +1,10 @@
+# Kopieer naar terraform.tfvars en vul in.
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# Optioneel — defaults staan in variables.tf:
+# resource_group_name = "rg-sovscan"
+# location            = "westeurope"
+# name_prefix         = "sovscan"
+# db_admin_user       = "sovadmin"
+# db_name             = "dsh_data"
+# app_service_sku     = "B1"
