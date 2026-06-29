@@ -13,17 +13,34 @@ module.exports = [
     display_order: 1,
     cluster: 'Harde eisen',
     dimensie: 'Data-soevereiniteit',
-    question_text: 'Bevat de oplossing data met classificatie BBi of hoger (Rijksoverheid rubricering)?',
-    toelichting: 'Departementaal Vertrouwelijk / BBi+ mag niet op commerciële cloud',
+    question_text: 'Bevat de oplossing gerubriceerde informatie (Departementaal Vertrouwelijk of hoger, conform VIRBI 2025)?',
+    toelichting: 'Gerubriceerd (Dep.V en hoger) kan niet op publieke cloud worden geaccrediteerd. Let op: BBN 1–3 (BIO) is níét gerubriceerd en valt hier niet onder.',
     answer_type: 'binary',
     base_factor: 1, dimensie_gewicht: 1.5,
     op_ja: 10, op_nee: 10, opp_ja: 8, opp_nee: 10, euc_ja: 0, euc_nee: 10, hyp_ja: 0, hyp_nee: 10,
     ko_on_ja: 'EUC,HYP',
-    ko_reason: 'Commerciële cloud is uitgesloten voor BBi+; EUC en HYP voldoen niet aan rubriceringseisen.',
-    ko_mitigation: 'Plaats BBi+ data uitsluitend op rijks-private infra (OP) of een gecertificeerde overheidspartner (OPP).',
-    info_text: `Vraagt of er data is met classificatie BBi (Bedrijfsvertrouwelijk) of hoger volgens de Rijksrubricering.
-Antwoord Ja → EUC en HYP worden knock-out: commerciële cloud is voor BBi+ niet toegestaan. OP is sterkste keuze, OPP via een rijks-gecertificeerde partner is mogelijk.
-Antwoord Nee → reguliere data, geen rijks-cloudbeperking; alle scenario's blijven open.`
+    ko_reason: 'Onder VIRBI 2025 kan publieke/commerciële cloud niet worden geaccrediteerd voor gerubriceerde informatie (Dep.V en hoger); EU Cloud en Hyperscaler vallen daarom af.',
+    ko_mitigation: 'Plaats gerubriceerde data uitsluitend op rijks-private infrastructuur (OP) of een daarvoor geaccrediteerde overheidspartner (OPP).',
+    info_text: `Vraagt of er gerubriceerde informatie in het spel is: Departementaal Vertrouwelijk (Dep.V), Stg. Confidentieel, Stg. Geheim of Stg. Zeer Geheim — het VIRBI 2025-stelsel.
+Dit staat LOS van het BBN-niveau (BBN 1/2/3 uit de BIO): BBN-data kan gevoelig zijn (bijv. persoons-, medische of strafdossiers) maar is níét gerubriceerd en valt hier dus NIET onder.
+Antwoord Ja → EU Cloud en Hyperscaler worden knock-out: publieke cloud is onder VIRBI niet te accrediteren voor gerubriceerde informatie. OP is de sterkste keuze, OPP via een geaccrediteerde overheidspartner is mogelijk.
+Antwoord Nee → geen rubricering (ten hoogste BBN): geen categorische cloudban, alle scenario's blijven open mits de juiste BIO-maatregelen.`
+  },
+  {
+    display_order: 1,
+    cluster: 'Harde eisen',
+    dimensie: 'Data-soevereiniteit',
+    question_text: 'Is BBN 3 (verhoogd risico, niet-gerubriceerd) het hoogste van toepassing zijnde beveiligingsniveau?',
+    toelichting: 'BBN 3-data (bijv. persoons-, medische of strafdossiers) mag op publieke cloud, maar is omstreden; on-prem/partner heeft de voorkeur. Geen knock-out.',
+    answer_type: 'binary',
+    base_factor: 1, dimensie_gewicht: 1.2,
+    // Geen KO: BIO kent geen categorische cloudban. Wel een penalty op publieke
+    // cloud omdat BBN 3 op hyperscaler/EU-cloud omstreden is; on-prem blijft sterkst.
+    op_ja: 10, op_nee: 10, opp_ja: 9, opp_nee: 10, euc_ja: 5, euc_nee: 10, hyp_ja: 3, hyp_nee: 10,
+    info_text: `Vraagt of het hoogste niveau BBN 3 is: verhoogd risico binnen het BIO-stelsel, maar NIET gerubriceerd (valt niet onder VIRBI).
+BBN 3-data kan gevoelig zijn (persoons-, medische, strafdossiers) maar draagt geen rubriceringsstempel.
+Antwoord Ja → geen knock-out, maar publieke cloud (EU Cloud, en sterker nog Hyperscaler) krijgt een penalty; on-prem (OP) en partner (OPP) hebben de voorkeur.
+Antwoord Nee → BBN 1/2 of lager: publieke cloud is goed bespreekbaar mits de juiste BIO-maatregelen.`
   },
   {
     display_order: 2,
