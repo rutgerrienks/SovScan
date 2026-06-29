@@ -52,3 +52,9 @@
 - **Deploy-nuance:** `server.js` herseed de `questions`-tabel alleen bij een lege tabel of de oude-set-marker; op de live DB staat de set al, dus deze tekstwijziging komt NIET automatisch live. Vereist een gerichte `UPDATE` op de rij (of geforceerde reseed).
 - **BBN-vraag toegevoegd (akkoord gebruiker):** nieuwe binaire vraag *"Is BBN 3 (verhoogd risico, niet-gerubriceerd) het hoogste van toepassing zijnde beveiligingsniveau?"* (display_order 1, na de rubriceringsvraag). **Geen KO** — wel een penalty op publieke cloud (euc_ja 5, hyp_ja 3; op/opp blijven hoog), want BBN 3 is omstreden maar niet verboden op publieke cloud. Gewichten zijn een voorstel, eenvoudig te tunen.
 - **Live toegepast:** rubriceringsrij ge-UPDATE en BBN-rij ge-INSERT via ACI-psql (geen wipe/reseed, antwoordhistorie intact).
+
+## 2026-06-29 22:45 — SEAL-kaart opgeschoond, undefined-bug + radar-overlap fix
+- **Bug:** "Waarom dit niveau: **undefined** — …" — de why-tekst gebruikte `blocking.code`, maar tier-objecten hebben geen `code`-veld → `SEAL_LEVELS[blocking.level].code`.
+- **SEAL-kaart (lelijke labellocatie):** zwevende kleur-chip + volle-hoogte `borderLeft` vervangen door een nette header (lichtgrijze balk, SEAL-code groot in de niveaukleur) met een 5px kleuraccent bovenaan; body in eigen padding-div.
+- **Radar-overlap:** aslabels (bijv. "Vendor Lock-in") liepen door `overflow: visible` de naastgelegen balkgrafiek in. ViewBox kreeg horizontale/verticale marge (padX 78, padY 26), labelR iets naar binnen (0.43), `overflow: hidden`.
+- **Versie → 1.1.2.** Frontend herbouwd + `sovscan-frontend-1478` herstart. `eslint` → 0 errors.
