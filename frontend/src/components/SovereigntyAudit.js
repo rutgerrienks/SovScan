@@ -264,9 +264,9 @@ const getSealEstimate = (overallScore, dimensionScores = []) => {
   if (!blocking) {
     why = `Alle thema-lagen tot en met ${level.code} zijn voldoende geborgd (drempel ${SEAL_THRESHOLD}%).`;
   } else if (!blocking.hasData) {
-    why = `${blocking.code} — ${SEAL_LEVELS[blocking.level].nameNl} — is niet aangetoond: er zijn geen beantwoorde stellingen voor deze laag, dus een hoger niveau wordt niet toegekend. In het EU-kader bepaalt de zwakste schakel het niveau.`;
+    why = `${SEAL_LEVELS[blocking.level].code} — ${SEAL_LEVELS[blocking.level].nameNl} — is niet aangetoond: er zijn geen beantwoorde stellingen voor deze laag, dus een hoger niveau wordt niet toegekend. In het EU-kader bepaalt de zwakste schakel het niveau.`;
   } else {
-    why = `${blocking.code} — ${SEAL_LEVELS[blocking.level].nameNl} — scoort ${blocking.score}% en blijft onder de drempel van ${SEAL_THRESHOLD}%. Daardoor wordt een hoger niveau niet gehaald: het kader telt de zwakste schakel, niet het gemiddelde (${overallScore}%).`;
+    why = `${SEAL_LEVELS[blocking.level].code} — ${SEAL_LEVELS[blocking.level].nameNl} — scoort ${blocking.score}% en blijft onder de drempel van ${SEAL_THRESHOLD}%. Daardoor wordt een hoger niveau niet gehaald: het kader telt de zwakste schakel, niet het gemiddelde (${overallScore}%).`;
   }
 
   return { ...level, index: achieved, why, tiers };
@@ -373,7 +373,13 @@ const RadarChart = ({ dimensionScores, benchmark, size = 420 }) => {
   const cx = size / 2;
   const cy = size / 2;
   const r  = size * 0.34;       // radius of the outer ring
-  const labelR = size * 0.455;  // radius for label placement
+  const labelR = size * 0.43;   // radius for label placement
+  // Extra marge in de viewBox zodat lange aslabels (bijv. "Vendor Lock-in")
+  // binnen de SVG blijven en niet in de naastgelegen balkgrafiek lopen.
+  const padX = 78;
+  const padY = 26;
+  const vbW = size + padX * 2;
+  const vbH = size + padY * 2;
   const n = dimensionScores.length;
   if (n < 3) return null;
 
@@ -429,10 +435,10 @@ const RadarChart = ({ dimensionScores, benchmark, size = 420 }) => {
 
   return (
     <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      style={{ display: 'block', margin: '0 auto', width: '100%', maxWidth: `${size}px`, height: 'auto', overflow: 'visible' }}
+      width={vbW}
+      height={vbH}
+      viewBox={`${-padX} ${-padY} ${vbW} ${vbH}`}
+      style={{ display: 'block', margin: '0 auto', width: '100%', maxWidth: `${vbW}px`, height: 'auto', overflow: 'hidden' }}
     >
       {/* Grid rings */}
       {gridRings.map((frac) => (
@@ -838,9 +844,9 @@ const SovereigntyAudit = ({ user, onBack }) => {
         </div>
 
         {/* Indicatieve SEAL-inschatting (afgeleid uit de totaalscore) */}
-        <div className="card shadow-sm p-4 mb-5" style={{ borderLeft: `6px solid ${seal.color}` }}>
-          <div className="d-flex align-items-center flex-wrap gap-3 mb-3">
-            <span style={{ background: seal.color, color: '#fff', fontWeight: 800, fontSize: '20px', padding: '8px 16px', borderRadius: '8px', letterSpacing: '0.5px' }}>
+        <div className="card shadow-sm mb-5" style={{ padding: 0, overflow: 'hidden', borderTop: `5px solid ${seal.color}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap', padding: '18px 24px', background: '#f8f9fb', borderBottom: '1px solid #eef0f3' }}>
+            <span style={{ color: seal.color, fontWeight: 900, fontSize: '30px', letterSpacing: '0.5px', lineHeight: 1 }}>
               {seal.code}
             </span>
             <div>
@@ -852,6 +858,7 @@ const SovereigntyAudit = ({ user, onBack }) => {
               </div>
             </div>
           </div>
+          <div style={{ padding: '24px' }}>
           <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '10px' }}>
             <strong>Wat dit betekent:</strong> {seal.meaning}
           </p>
@@ -887,6 +894,7 @@ const SovereigntyAudit = ({ user, onBack }) => {
               Niveaudefinities: EU Cloud Sovereignty Framework (okt 2025).
             </span>
           </p>
+          </div>
         </div>
 
         {/* Per dimension scores — spider chart + bars */}
