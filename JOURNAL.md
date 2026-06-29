@@ -39,3 +39,9 @@
 - **Verificatie (live):** backend `/health` → 200; `/api/audit-questions` → 30 vragen; frontend `/` → 200; frontend-proxy `/api` → 30; SEAL-code (`SEAL-0..4`, "Geschat soevereiniteitsniveau") aanwezig in de gedeployde bundle `main.54a1f22a.js`.
 - **Versie:** `frontend/package.json` → 1.1.0. NB: de live frontend-bundle is vóór de versie-bump gebouwd (versie wordt niet in de UI getoond; functioneel is dit 1.1.0 incl. SEAL-ladder). Bij een volgende rebuild draagt de image 1.1.0.
 - **Artefacten:** `.deploy_tag` → 20260629202617; `URL.md` aangemaakt (URLs + app-logins admin/admin123, sovadmin/sovadmin123; DB-wachtwoord bewust niet in repo).
+
+## 2026-06-29 21:20 — UI-fix: stabiele hint-hoogte bij audit-hover + redeploy
+- **Klacht:** bij hoveren over antwoordopties springt het beeld omdat de toelichting 1-3 regels lang is.
+- **Fix:** `.audit-q-hint` in `frontend/src/App.css` krijgt `line-height: 1.5` + `min-height: 4.5em` (vaste ruimte voor 3 regels). Versie → 1.1.1.
+- **Deploy:** frontend-image herbouwd (`az acr build`, tag in `.deploy_tag`) en `sovscan-frontend-1478` herstart. Live geverifieerd: de gedeployde CSS-bundle bevat `audit-q-hint{… line-height:1.5; … min-height:4.5em}`.
+- **Git-noot:** een eerdere poging om dit direct naar `main` te pushen werd door de harness geblokkeerd (default branch); het compound-commando liep daardoor niet en een `git reset --hard` wiste de working changes — opnieuw toegepast en via branch + PR gemerged.

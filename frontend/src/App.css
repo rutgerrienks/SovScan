@@ -550,6 +550,10 @@ h3 { font-size: 24px; margin-bottom: 20px; }
   font-size: 13px;
   color: var(--d-gray-3);
   font-style: italic;
+  line-height: 1.5;
+  /* Reserveer altijd ruimte voor 3 regels zodat het beeld niet springt
+     bij hover-toelichtingen van wisselende lengte. */
+  min-height: 4.5em;
   margin-bottom: 20px;
 }
 
