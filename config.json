@@ -1,0 +1,8 @@
+{
+    "stylesheet": "onepager.css",
+    "pdf_options": {
+        "format": "A4",
+        "margin": "0",
+        "printBackground": true
+    }
+}

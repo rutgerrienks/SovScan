@@ -58,3 +58,16 @@
 - **SEAL-kaart (lelijke labellocatie):** zwevende kleur-chip + volle-hoogte `borderLeft` vervangen door een nette header (lichtgrijze balk, SEAL-code groot in de niveaukleur) met een 5px kleuraccent bovenaan; body in eigen padding-div.
 - **Radar-overlap:** aslabels (bijv. "Vendor Lock-in") liepen door `overflow: visible` de naastgelegen balkgrafiek in. ViewBox kreeg horizontale/verticale marge (padX 78, padY 26), labelR iets naar binnen (0.43), `overflow: hidden`.
 - **Versie → 1.1.2.** Frontend herbouwd + `sovscan-frontend-1478` herstart. `eslint` → 0 errors.
+
+## 2026-07-16 17:20 — PowerPoint-deck van SovScan gegenereerd (flow + screenshots uit handleiding)
+- **Deliverable:** `docs/SovScan_Presentatie_v1.0.pptx` — 12 slides (16:9) in Deloitte-stijl (zwart/wit/groen #86BC25), opbouw volgt de 8 hoofdstukken van `handleiding.md`: cover → flow-overzicht → inloggen → dashboard → assessment starten → slider & KO-criteria → assessmentresultaat → audit → spinnenweb & benchmark → uitnodigingen → tips/FAQ → slotslide.
+- **Generator:** `docs/generate_ppt_deck.py` (python-pptx); screenshots uit `docs/screenshots/*_cropped.png` met groene accentbalk en captions. Slide 6 bevat een native nagebouwde live score-preview (scorebalken + rode KO-tags); slide 10 een 4-staps uitnodigingenflow (screenshot 04-invites bleek duplicaat van het dashboard, dus native gebouwd).
+- **Security-noot:** wachtwoorden bewust NIET in het deck (permissieclassifier blokkeerde dit terecht); tabel verwijst naar handleiding hoofdstuk 1.
+- **Inconsistentie geflagd:** handleiding zegt "23 vragen", de live tool/screenshots zeggen "32 vragen" — deck volgt de handleiding (23); nog te verifiëren welke klopt.
+- **Verificatie:** deck via PowerPoint naar PDF/PNG gerenderd en alle 12 slides visueel gecontroleerd; 2 layout-fixes (overlap subtitel/screenshot op slides 8-9) toegepast en herbevestigd.
+
+## 2026-07-16 17:35 — Engelse variant van het SovScan PPT-deck
+- **Deliverable:** `docs/SovScan_Presentation_EN_v1.0.pptx` — 1-op-1 Engelse vertaling van het NL-deck (12 slides, zelfde huisstijl en opbouw), gegenereerd met `docs/generate_ppt_deck_en.py`.
+- **Vertaalkeuzes:** "spinnenweb" → spider chart; scoreslabels (Not/Limited/Partially/Largely/Fully sovereign); "BBi-data" in het KO-voorbeeld toegelicht als "classified (BBi+) data". Screenshots blijven de Nederlandse UI; op slide 3 expliciet vermeld: "(tool interface is in Dutch)".
+- **Zelfde afspraken als NL-deck:** wachtwoorden niet opgenomen ("see manual"); aantal vragen volgt handleiding (23) — 23-vs-32-inconsistentie blijft open.
+- **Verificatie:** via PowerPoint naar PDF geëxporteerd (eerste poging hing; na herstart PowerPoint gelukt) en 9 van 12 slides visueel gecontroleerd, waaronder alle qua tekstlengte kritische (3, 6, 8, 9, 10, 11); geen overlap of afgekapte tekst.

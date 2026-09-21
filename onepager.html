@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SovScan - Deloitte Digital Sovereignty Assessment</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            font-family: "Open Sans", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            background-color: #fff;
+        }
+        .header {
+            background-color: #000;
+            color: #fff;
+            padding: 40px;
+            height: 120px;
+            position: relative;
+        }
+        .deloitte-logo {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .deloitte-logo span {
+            color: #86BC25;
+        }
+        .green-bar {
+            height: 8px;
+            background-color: #86BC25;
+            width: 100%;
+        }
+        .hero {
+            padding: 60px 40px;
+            background-color: #f3f3f3;
+        }
+        h1 {
+            font-size: 42px;
+            margin: 0 0 20px 0;
+            line-height: 1.1;
+        }
+        h2 {
+            color: #86BC25;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 40px;
+        }
+        .content {
+            display: flex;
+            padding: 40px;
+            gap: 40px;
+        }
+        .main-text {
+            flex: 3;
+        }
+        .sidebar {
+            flex: 2;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-left: 4px solid #86BC25;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .screenshot {
+            border: 1px solid #ddd;
+            background-color: #eee;
+            padding: 10px;
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+        }
+        .benefit-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+        .benefit-list li::before {
+            content: "•";
+            color: #86BC25;
+            font-size: 40px;
+            position: absolute;
+            left: 0;
+            top: -15px;
+        }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #000;
+            color: #fff;
+            padding: 20px 40px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="deloitte-logo">Deloitte<span>.</span></div>
+        <div style="margin-top: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Consulting | Digital Sovereignty</div>
+    </div>
+    <div class="green-bar"></div>
+
+    <div class="hero">
+        <h1>SovScan: Navigeren door de complexiteit van digitale soevereiniteit.</h1>
+        <p style="font-size: 20px; max-width: 800px;">Maak objectieve, datagedreven keuzes voor uw cloud-strategie met de Deloitte Sovereignty Assessment Tool.</p>
+    </div>
+
+    <div class="content">
+        <div class="main-text">
+            <h2>Waarom SovScan?</h2>
+            <p>In een wereld waar data het nieuwe goud is, wordt de locatie en controle over die data cruciaal. Organisaties staan voor complexe keuzes: Kiezen we voor de schaalbaarheid van een Hyperscaler, of de maximale controle van On-Premise? </p>
+            <p>SovScan objectiveert deze discussie door op basis van 23 kritieke criteria een soevereiniteitsscore te berekenen voor vier scenario's: On-Premise, Partner Cloud, EU Cloud en Hyperscaler.</p>
+            
+            <div class="screenshot-grid">
+                <div class="screenshot">
+                    [Screenshot: De Wizard-interface met duidelijke vragen en prioriteitsinstelling]
+                </div>
+                <div class="screenshot">
+                    [Screenshot: De resultatenpagina met scoreblokken en Knock-Out waarschuwingen]
+                </div>
+            </div>
+
+            <h2>De Methodiek</h2>
+            <p>Onze tool kijkt verder dan alleen techniek. We wegen factoren mee als Agility, Vendor-lock-in, Risk & Trust, en Operationele Complexiteit. Hierbij hanteren we strikte "Knock-Out" criteria: als een project bepaalde juridische of fysieke eisen stelt die onmogelijk zijn in een scenario, wordt dit direct inzichtelijk gemaakt.</p>
+        </div>
+
+        <div class="sidebar">
+            <h3 style="margin-top: 0;">Belangrijkste Voordelen</h3>
+            <ul class="benefit-list">
+                <li><strong>Snelheid:</strong> In minder dan 10 minuten een volledig beeld van de mogelijkheden.</li>
+                <li><strong>Objectiviteit:</strong> Datagedreven scores in plaats van onderbuikgevoel.</li>
+                <li><strong>Rapportage:</strong> Direct deelbare rapportages voor stakeholders.</li>
+                <li><strong>Compliance:</strong> Ingebouwde kennis van Europese wet- en regelgeving.</li>
+            </ul>
+            <div style="margin-top: 40px; background-color: #86BC25; color: #fff; padding: 20px; font-weight: bold; text-align: center;">
+                START UW ASSESSMENT VANDAAG NOG
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div>&copy; 2026 Deloitte Netherlands | SovScan Sovereignty Assessment</div>
+        <div>deloitte.nl/consulting</div>
+    </div>
+</body>
+</html>
